@@ -72,19 +72,27 @@
       grid
       (recur (assoc grid curr-row (update-row (nth grid curr-row) pos)) pos (inc curr-row))))))
 
-(defn grid-sum
-  [grid i sum]
-  (if (>= i (count grid))
-    sum
-    (recur grid (inc i) (+ sum (reduce + (filter (fn [x] (if (>= x 2) true false)) (nth grid i)))))))
+(defn row-count
+  [row curr-pos curr-count]
+  (cond
+    (>= curr-pos (count row)) curr-count
+    (> (nth row curr-pos) 1) (recur row (inc curr-pos) (inc curr-count))
+    :else (recur row (inc curr-pos) curr-count)))
+
+(defn grid-count
+  [grid]
+  (reduce + (map (fn [row] (row-count row 0 0)) grid)))
 
 (defn overlap
   [pos-vec]
   (let [grid (init-grid pos-vec)
         [x y] (:pos pos-vec)
         [width height] (:dimensions pos-vec)]
-    (grid-sum (reduce (fn [acc elt] (next-grid acc elt)) grid pos-vec) 0 0)))
+    (grid-count (reduce (fn [acc elt] (next-grid acc elt)) grid pos-vec))))
+    ;;(reduce (fn [acc elt] (next-grid acc elt)) grid pos-vec)))
 
 (overlap (pos-map-list (file-to-list "/Users/ericfoard/code/misc/advent-of-code/src/advent_of_code/day-3-input.txt") (list)))
+
+;;(overlap (pos-map-list (file-to-list "/Users/ericfoard/code/misc/advent-of-code/src/advent_of_code/day-3-test-input.txt") (list)))
 
 
