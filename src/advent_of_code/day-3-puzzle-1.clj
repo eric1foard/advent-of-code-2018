@@ -18,7 +18,7 @@
 (defn get-dims
   [line]
   (let [dims-str (subs line (inc (str/index-of line ":")) (count line))]
-    (reverse (vec (map (fn [x] (read-string x)) (str/split dims-str #"x"))))))
+    (vec (map (fn [x] (read-string x)) (str/split dims-str #"x")))))
 
 (defn pos-map
   [line]
