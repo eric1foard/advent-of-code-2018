@@ -83,16 +83,51 @@
   [grid]
   (reduce + (map (fn [row] (row-count row 0 0)) grid)))
 
-(defn overlap
+(defn populated-grid
   [pos-vec]
   (let [grid (init-grid pos-vec)
-        [x y] (:pos pos-vec)
-        [width height] (:dimensions pos-vec)]
-    (grid-count (reduce (fn [acc elt] (next-grid acc elt)) grid pos-vec))))
-    ;;(reduce (fn [acc elt] (next-grid acc elt)) grid pos-vec)))
+      [x y] (:pos pos-vec)
+      [width height] (:dimensions pos-vec)]
+    (reduce (fn [acc elt] (next-grid acc elt)) grid pos-vec)))
 
+(defn overlap
+  [claim-vec]
+  (grid-count (populated-grid claim-vec)))
+
+;; PUZZLE 1 SOLUTION
 (overlap (pos-map-list (file-to-list "/Users/ericfoard/code/misc/advent-of-code/src/advent_of_code/day-3-input.txt") (list)))
 
-;;(overlap (pos-map-list (file-to-list "/Users/ericfoard/code/misc/advent-of-code/src/advent_of_code/day-3-test-input.txt") (list)))
+(defn row-sum
+  [row low high]
+  (let [ans (reduce + (map (fn [x] (nth row x)) (range low high)))]
+  (do (println "row ", row, "low ", low, "high ", high, "row sum ", ans) ans)))
+
+
+(defn subgrid-sum
+  [grid claim]
+  (let [[x y] (:pos claim)
+        [width height] (:dimensions claim)]
+    (do (println "x ", x, "y ", y, "width ", width, "height ", height)
+    (reduce + (map (fn [row] (row-sum (nth grid row) x (+ x width))) (range y (+ y height)))))))
+
+(defn has-no-overlap?
+  [grid claim]
+  (let [[width height] (:dimensions claim)
+        target-sum (* width height)
+        sum (subgrid-sum grid claim)]
+    (do (println "target ", target-sum, "sum ", sum))(= target-sum sum)))
+
+(defn find-no-overlap
+  [grid claims]
+  (filter (fn [c] (has-no-overlap? grid c)) claims))
+
+;; PUZZLE 2 SOLUTION
+(def claim-vec (pos-map-list (file-to-list "/Users/ericfoard/code/misc/advent-of-code/src/advent_of_code/day-3-input.txt") (list)))
+(def grid (populated-grid claim-vec))
+
+;; (populated-grid claim-vec)
+
+(find-no-overlap grid claim-vec)
+
 
 
